@@ -6,4 +6,56 @@ date: 2024-09-27
 
 ```{r setup}
 library(tidyverse)
+library(dplyr)
 ```
+
+Problem 1:
+## Use relative path to upload the datasets
+
+```{r}
+pols_df = read_csv(file = "./fivethirtyeight_datasets/pols-month.csv")
+pols_df = janitor::clean_names(pols_df)
+
+unemployment_df = read_csv(file = "./fivethirtyeight_datasets/unemployment.csv")
+unemployment_df = janitor::clean_names(unemployment_df)
+
+snp_df = read_csv(file = "./fivethirtyeight_datasets/snp.csv")
+snp_df = janitor::clean_names(snp_df)
+```
+
+First, clean the data in pols-month.csv. Use separate() to break up the variable mon into integer variables year, month, and day.
+
+```{r}
+pols_df <- pols_df %>%
+  separate(mon, c("year", "month", "day"))
+```
+
+
+Replace month number with month name. 
+```{r}
+pols_df <- pols_df %>%
+  mutate(
+    month = as.integer(.data$month),
+    month = month.name[month]
+  )
+```
+
+Create a president variable taking values gop and dem.
+
+```{r}
+pols_df <- pols_df %>%
+    pivot_longer(
+      cols = c(prez_gop, prez_dem),
+      names_to = "president",
+      values_to = "party"
+  )
+```
+
+Remove prez_dem and prez_gop; and remove the day variable.
+
+```{r}
+pols_df <- pols_df %>%
+  select(-day)
+```
+
+
