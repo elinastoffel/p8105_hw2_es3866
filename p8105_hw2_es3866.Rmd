@@ -129,3 +129,19 @@ The snp dataset contains 787 observations related to the S&P including the date 
 The unemployment dataset contains 68 observations including the year and the percentage of unemployment in the month of the associated year.
 
 The merged dataset contains data from the years 1950-2015 and aligns the political state (republican vs democrat) at a given time to the S&P index closing values and unemployment data. It appears that the unemplyment rates increase when there is a republican president. Overall, S&P performance has increased over time.
+
+
+
+Problem 2:
+
+```{r}
+library(readxl) 
+trashwheel_df <- read_excel("./202409 Trash Wheel Collection Data.xlsx")
+trashwheel_df = janitor::clean_names(trashwheel_df)
+```
+
+
+```{r}
+
+```
+
