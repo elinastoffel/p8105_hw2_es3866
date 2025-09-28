@@ -191,3 +191,43 @@ trashwheel_df %>%
 
 
 ## Problem 3
+Create a single, well-organized dataset with all the information contained in these data files. To that end: import, clean, tidy, and otherwise wrangle each of these datasets; check for completeness and correctness across datasets (e.g. by viewing individual datasets and monitoring warning messages); merge to create a single, final dataset; and organize this so that variables and observations are in meaningful orders.
+
+Briefly describe the resulting tidy dataset. How many total observations exist? How many unique ZIP codes are included, and how many unique neighborhoods?
+
+Which ZIP codes appear in the ZIP code dataset but not in the Zillow Rental Price dataset? Using a few illustrative examples discuss why these ZIP codes might be excluded from the Zillow dataset.
+
+Rental prices fluctuated dramatically during the COVID-19 pandemic. For all available ZIP codes, compare rental prices in January 2021 to prices in January 2020. Make a table that shows the 10 ZIP codes (along with the borough and neighborhood) with largest drop in price from January 2020 to 2021. Comment.
+
+
+Import the dataset:
+```{r}
+zipcodes_df = read_csv(file = "./zillow_data/Zip Codes.csv")
+zipcodes_df = janitor::clean_names(zipcodes_df)
+
+zori_df = read_csv(file = "./zillow_data/Zip_zori_uc_sfrcondomfr_sm_month_NYC.csv")
+zori_df = janitor::clean_names(zori_df)
+```
+
+Match the datasets
+```{r}
+zipcodes_df <- zipcodes_df %>%
+  mutate(
+    county = as.character(county)
+  )
+
+zori_df <- zori_df %>%
+  mutate(
+    county_name = str_remove(county_name, " County$"),
+    county_name = str_trim(county_name),
+    county_name = as.character(county_name)
+  )
+```
+
+Merge
+
+```{r}
+zip_zori_df <- zipcodes_df %>%
+  left_join(zori_df, by = c("county" = "county_name"))
+```
+
