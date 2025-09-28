@@ -15,32 +15,26 @@ Problem 1:
 ```{r}
 pols_df = read_csv(file = "./fivethirtyeight_datasets/pols-month.csv")
 pols_df = janitor::clean_names(pols_df)
-
-unemployment_df = read_csv(file = "./fivethirtyeight_datasets/unemployment.csv")
-unemployment_df = janitor::clean_names(unemployment_df)
-
-snp_df = read_csv(file = "./fivethirtyeight_datasets/snp.csv")
-snp_df = janitor::clean_names(snp_df)
 ```
 
-First, clean the data in pols-month.csv. Use separate() to break up the variable mon into integer variables year, month, and day.
+## Clean the data in pols-month.csv. 
+Use separate() to break up the variable mon into integer variables year, month, and day.
 
 ```{r}
 pols_df <- pols_df %>%
   separate(mon, c("year", "month", "day"))
 ```
 
-
 Replace month number with month name. 
 ```{r}
 pols_df <- pols_df %>%
   mutate(
     month = as.integer(.data$month),
-    month = month.name[month]
-  )
+    month = month.name[month]) %>%
+  mutate(year = as.integer(year))
 ```
 
-Create a president variable taking values gop and dem.
+Create a president variable taking values gop and dem. The pivot function automatically gets rid of prez_gop and prez_dem.
 
 ```{r}
 pols_df <- pols_df %>%
@@ -51,11 +45,68 @@ pols_df <- pols_df %>%
   )
 ```
 
-Remove prez_dem and prez_gop; and remove the day variable.
+Remove the day variable.
 
 ```{r}
 pols_df <- pols_df %>%
   select(-day)
 ```
 
+## Clean the data in snp.csv
+
+```{r}
+
+snp_df = read_csv(file = "./fivethirtyeight_datasets/snp.csv")
+snp_df = janitor::clean_names(snp_df)
+```
+
+Break up the data variables into day, month, and year
+
+```{r}
+snp_df <- snp_df %>%
+  separate(date, c("month", "day", "year"))
+```
+
+For consistency across datasets, arrange according to year and month, and organize so that year and month are the leading columns.
+
+```{r}
+snp_df <- snp_df %>%  
+  mutate(
+    year = as.integer(year),
+    year = ifelse(year < 40, 2000 + year, 1900 + year)) %>%
+  mutate(
+    month = as.integer(month),
+    month = month.name[month]) %>%
+  select(year, month, everything())
+```
+
+Tidy the unemployment data so that it can be merged with the previous datasets. This process will involve switching from “wide” to “long” format; ensuring that key variables have the same name; and ensuring that key variables take the same values.
+
+```{r}
+unemployment_df = read_csv(file = "./fivethirtyeight_datasets/unemployment.csv")
+unemployment_df = janitor::clean_names(unemployment_df)
+```
+
+```{r}
+unemployment_df <- unemployment_df %>%
+  pivot_longer(
+    cols = jan:dec,
+    names_to = "month",
+    values_to = "day"
+  )
+```
+
+```{r}
+unemployment_df <- unemployment_df %>%
+  mutate(month = month.name[match(tolower(month), tolower(month.abb))])
+```
+
+Now, merge the data sets!
+Join the datasets by merging snp into pols, and merging unemployment into the result.
+
+```{r}
+merged_df <- pols_df %>%
+  left_join(snp_df, by = c("year", "month")) %>%
+  left_join(unemployment_df, by = c("year", "month"))
+```
 
