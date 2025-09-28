@@ -9,15 +9,15 @@ library(tidyverse)
 library(dplyr)
 ```
 
-Problem 1:
-## Use relative path to upload the datasets
+##Problem 1:
+# Use relative path to upload the datasets
 
 ```{r}
 pols_df = read_csv(file = "./fivethirtyeight_datasets/pols-month.csv")
 pols_df = janitor::clean_names(pols_df)
 ```
 
-## Clean the data in pols-month.csv. 
+# Clean the data in pols-month.csv. 
 Use separate() to break up the variable mon into integer variables year, month, and day.
 
 ```{r}
@@ -52,7 +52,7 @@ pols_df <- pols_df %>%
   select(-day)
 ```
 
-## Clean the data in snp.csv
+# Clean the data in snp.csv
 
 ```{r}
 
@@ -122,7 +122,7 @@ merged_df <- snp_pols_df %>%
   left_join(unemployment_df, by = c("year", "month"))
 ```
 
-## Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
+# Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
 
 The file “pols-month” contains 822 observations related to the number of national politicians who are democratic or republican (senators, representatives, govenors, president) at any given time.
 The snp dataset contains 787 observations related to the S&P including the date and the closing values of the S&P stock index on the associated date.
@@ -132,7 +132,7 @@ The merged dataset contains data from the years 1950-2015 and aligns the politic
 
 
 
-Problem 2:
+## Problem 2:
 
 ```{r}
 library(readxl) 
@@ -160,8 +160,34 @@ trashwheel_df <- bind_rows(mr_trash, professor_trash, gwynnda_trash)
 trashwheel_df = janitor::clean_names(trashwheel_df)
 ```
 
+# Write a paragraph about these data
+Be sure to note the number of observations in the resulting dataset, and give examples of key variables. For available data, what was the total weight of trash collected by Professor Trash Wheel? What was the total number of cigarette butts collected by Gwynnda in June of 2022?
+
 
 ```{r}
-
+trashwheel_df %>%
+  group_by(wheel) %>%
+  summarise(n_obs = n())
 ```
 
+```{r}
+trashwheel_df %>%
+  select(dumpster, month, year, weight_tons, cigarette_butts, wheel)
+```
+
+How many tons did each wheel collect? Mr. Trash, it collected 2091.18 tons of trash.
+```{r}
+trashwheel_df %>%
+  group_by(wheel) %>%
+  summarise(total_weight = sum(weight_tons, na.rm = TRUE))
+```
+
+How many cigarette butts did gwynnda collect in June 2022? 18120
+```{r}
+trashwheel_df %>%
+  filter(wheel == "gwynnda_trash", year == 2022, month == "June") %>%
+  summarise(total_cigs = sum(cigarette_butts, na.rm = TRUE))
+```
+
+
+## Problem 3
